@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <title data-i18n="eat-kano"></title>
+    <meta itemprop="name" content="吃掉小鹿乃" />
+    <meta itemprop="description" content="新概念音游" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, width=device-width,target-densitydpi=device-dpi" />
+    
+    <!-- 原始 CSS（保留布局） -->
+    <link href="./static/index.css" rel="stylesheet" type="text/css">
+    
+    <link rel="stylesheet" href="libs/bootstrap.min.css">
+    <script src="libs/jquery.min.js"></script>
+    <script src="libs/bootstrap.bundle.min.js"></script>
+    <script src="libs/createjs.min.js"></script>
+    <script src="libs/jsencrypt.min.js"></script>
+    
+    <!-- ===== 新增覆盖样式（仅美化，不破坏功能） ===== -->
+    <style>
+        /* ----- 毛玻璃效果（仅装饰容器） ----- */
+        #welcome {
+            background: rgba(8, 8, 12, 0.78) !important;
+            backdrop-filter: blur(14px) saturate(1.2);
+            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        }
+
+        /* 标题粉紫渐变 */
+        #welcome [data-i18n="game-title"] {
+            color: #ff8aae !important;
+            background: linear-gradient(135deg, #ff8aae, #f5a0c0, #ffb0c8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(255, 138, 174, 0.25);
+        }
+
+        /* 描述文字颜色 */
+        #desc {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        /* 开始按钮（粉色毛玻璃） */
+        .btn-primary {
+            background: linear-gradient(135deg, #ff8aae, #e87090) !important;
+            border: none !important;
+            color: #fff !important;
+            font-weight: 600;
+            border-radius: 60px !important;
+            box-shadow: 0 4px 24px rgba(255, 138, 174, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px rgba(255, 138, 174, 0.45);
+            background: linear-gradient(135deg, #ff9ab8, #f07898) !important;
+        }
+
+        /* 其他按钮（毛玻璃风格） */
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+            border-radius: 60px !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 138, 174, 0.2) !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            background: rgba(20, 20, 28, 0.85);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        }
+        .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 10px 24px;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 138, 174, 0.12);
+            color: #ff8aae;
+        }
+
+        /* 设置面板（毛玻璃） */
+        #setting {
+            background: rgba(12, 12, 16, 0.65) !important;
+            backdrop-filter: blur(28px) saturate(1.6);
+            -webkit-backdrop-filter: blur(28px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 28px;
+            padding: 20px 18px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+            margin-top: 12px;
+        }
+        #setting .input-group-text {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.75);
+            border-radius: 12px 0 0 12px;
+        }
+        #setting .form-control {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #f0e8ec;
+            border-radius: 0 12px 12px 0;
+        }
+        #setting .form-control:focus {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 138, 174, 0.4);
+            box-shadow: 0 0 0 3px rgba(255, 138, 174, 0.10);
+            color: #fff;
+        }
+        #setting .btn {
+            background: linear-gradient(135deg, #ff8aae, #e87090);
+            border: none;
+            color: #fff;
+            border-radius: 60px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        #setting .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 138, 174, 0.3);
+        }
+
+        /* 游戏结束弹窗（灰底白字） */
+        #GameScoreLayer {
+            background: rgba(0, 0, 0, 0.45) !important;
+            backdrop-filter: blur(6px) saturate(1.1);
+            -webkit-backdrop-filter: blur(6px) saturate(1.1);
+        }
+        #GameScoreLayer > div {
+            background: rgba(50, 50, 55, 0.85) !important;
+            backdrop-filter: blur(32px) saturate(1.6);
+            -webkit-backdrop-filter: blur(32px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 32px;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.7);
+            color: #ffffff !important;
+        }
+        #GameScoreLayer #GameScoreLayer-text {
+            font-size: 2.0em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff8aae, #f5a0c0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #GameScoreLayer .d-flex {
+            color: #ffffff !important;
+            font-size: 1.1em;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        #GameScoreLayer .d-flex .col-3 {
+            color: rgba(255, 255, 255, 0.45);
+        }
+        #GameScoreLayer .d-flex .col-2 {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        #GameScoreLayer .btn {
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            border-radius: 40px !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        #GameScoreLayer .btn:hover {
+            background: rgba(255, 138, 174, 0.12) !important;
+            border-color: rgba(255, 138, 174, 0.25) !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+        #GameScoreLayer #replay {
+            background: linear-gradient(135deg, #ff8aae, #e87090) !important;
+            border: none !important;
+            color: #fff !important;
+            box-shadow: 0 4px 20px rgba(255, 138, 174, 0.25);
+        }
+        #GameScoreLayer #replay:hover {
+            background: linear-gradient(135deg, #ff9ab8, #f07898) !important;
+            box-shadow: 0 8px 32px rgba(255, 138, 174, 0.35);
+            color: #fff !important;
+        }
+
+        /* 游戏图层（纯黑背景 + 分割线不可见） */
+        #GameLayerBG {
+            background: #000000 !important;
+        }
+        .block {
+            border-top: 1px solid #000000 !important;
+        }
+        .bl {
+            border-left: 1px solid #000000 !important;
+        }
+
+        /* 计时器亮粉色 */
+        #GameTimeLayer {
+            color: #ff8aae !important;
+            text-shadow: 0 0 40px rgba(255, 138, 174, 0.25), 0 0 80px rgba(255, 138, 174, 0.08) !important;
+        }
+
+        /* 确保 #GameTimeLayer 位置不被覆盖（原始CSS中 top: 1em 有效） */
+        #GameTimeLayer {
+            top: 1em !important;
+            left: 0 !important;
+            width: 100% !important;
+            text-align: center !important;
+            font-size: 4em !important;
+            font-weight: bold !important;
+            pointer-events: none !important;
+        }
+
+        /* 响应式微调 */
+        @media (max-width: 600px) {
+            #welcome [data-i18n="game-title"] { font-size: 1.8em !important; }
+            #GameTimeLayer { font-size: 2.6em !important; top: 12px !important; }
+            #GameScoreLayer > div { padding: 28px 20px 24px !important; }
+            #GameScoreLayer #GameScoreLayer-text { font-size: 1.5em !important; }
+            #setting { padding: 16px 12px !important; }
+        }
+        @media (max-width: 420px) {
+            #welcome [data-i18n="game-title"] { font-size: 1.4em !important; }
+            #GameTimeLayer { font-size: 2.0em !important; }
+        }
+    </style>
+</head>
+
+<body onLoad="init()" oncontextmenu="self.event.returnValue=false">
+
+    <!-- 原始 HTML 结构（完全不变） -->
+    <div id="GameScoreLayer" class="BBOX SHADE bgc1" style="display:none;">
+        <div style="padding:5%;margin-top:200px;background-color:rgba(125,181,216,0.3);">
+            <div id="GameScoreLayer-text"></div>
+            <div id="GameScoreLayer-CPS" class="mb-2 d-flex flex-row justify-content-center text-start">
+                <div class="col-3">CPS</div>
+                <div class="col-2" id="cps"></div>
+            </div>
+            <div id="GameScoreLayer-score" class="mb-2 d-flex flex-row justify-content-center text-start">
+                <div class="col-3" data-i18n="score"></div>
+                <div class="col-2" id="score"></div>
+            </div>
+            <div id="GameScoreLayer-bast" class="mb-2 d-flex flex-row justify-content-center text-start">
+                <div class="col-3" data-i18n="best"></div>
+                <div class="col-2" id="best"></div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-lg" id="replay" onclick="replayBtn()" data-i18n="again">AGAIN-I18N</button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.reload()" data-i18n="home">HOME-I18N</button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='https://github.com/HongAXE/oshit'" data-i18n="repo">REPO-I18N</button>
+        </div>
+    </div>
+
+    <div id="welcome" class="SHADE BOX-M">
+        <div class="welcome-bg FILL"></div>
+        <div class="FILL BOX-M" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">
+            <div class="container">
+                <div class="container mb-5">
+                    <div style="font-size:2.6em; color:#FEF002;" data-i18n="game-title">GAME-TITLE-I18N</div><br />
+                    <div id="desc" style="display:block;font-size:2.2em; color:#fff; line-height:1.5em;">
+                        <span data-i18n="game-intro1">GAME-INTRO1-I18N</span><br />
+                        <span data-i18n="game-intro2">GAME-INTRO2-I18N</span><br />
+                    </div>
+                </div>
+                <div id="btn_group" class="container text-nowrap">
+                    <div class="d-flex justify-content-center flex-column flex-fill">
+                        <a class="btn btn-primary btn-lg mb-3" onclick="readyBtn()" data-i18n="start">START-I18N</a>
+                        <div class="dropdown mb-3">
+                            <a class="w-100 btn btn-secondary btn-lg" href="javascript:void(0);" role="button" id="mode" data-bs-toggle="dropdown" aria-expanded="false" data-i18n="normal">NORMAL-I18N</a>
+                            <ul class="dropdown-menu" aria-labelledby="mode">
+                                <li><a class="dropdown-item" onclick="changeMode(MODE_NORMAL)" data-i18n="normal">NORMAL-I18N</a></li>
+                                <li><a class="dropdown-item" onclick="changeMode(MODE_ENDLESS)" data-i18n="endless">ENDLESS-I18N</a></li>
+                                <li><a class="dropdown-item" onclick="changeMode(MODE_PRACTICE)" data-i18n="practice">PRACTICE-I18N</a></li>
+                            </ul>
+                        </div>
+                        <a class="btn btn-secondary btn-lg" onclick="show_setting()" data-i18n="settings">SETTINGS-I18N</a>
+                    </div>
+                </div>
+                
+                <div id="setting" class="container" style="display:none;">
+                    <div class="container mb-3 btn-group">
+                        <a data-i18n="img-before" type="button" class="btn text-nowrap btn-secondary me-1" onclick="getClickBeforeImage()" style="left:0">IMG-BEFORE-I18N</a>
+                        <input type="file" id="click-before-image" accept="image/*" class="d-none" onchange="saveClickBeforeImage()">
+                        <a data-i18n="img-after" type="button" class="btn text-nowrap btn-secondary me-1" onclick="getClickAfterImage()" style="right:0">IMG-AFTER-I18N</a>
+                        <input type="file" id="click-after-image" accept="image/*" style="display:none;" onchange="saveClickAfterImage()">
+                        <a id="sound" type="button" class="btn text-nowrap btn-secondary" onclick="changeSoundMode()"></a>
+                    </div>
+
+                    <!-- ===== 键型预设按钮（无输入框） ===== -->
+                    <div class="d-flex flex-wrap mb-3" style="gap:6px; justify-content:center;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('!')">随机</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@')">无纵连</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@#')">短纵</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('2222')">全纵连</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('3232')">交互</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setStair()">楼梯</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@##')">三纵</button>
+                    </div>
+                    <!-- ===== 键型预设结束 ===== -->
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend col-2">
+                            <span class="input-group-text" data-i18n="title">TITLE-I18N</span>
+                        </div>
+                        <input data-placeholder-i18n="eat-kano" type="text" id="title" class="form-control" placeholder="EAT-KANO-I18N">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend col-2">
+                            <span data-i18n="key" class="input-group-text">KEY-I18N</span>
+                        </div>
+                        <input data-placeholder-i18n="default-dfjk" type="text" id="keyboard" class="form-control" maxlength=4 placeholder="DFJK-I18N">
+                    </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend col-2">
+                            <span data-i18n="time" class="input-group-text">TIME-I18N</span>
+                        </div>
+                        <input data-placeholder-i18n="default-20s" type="text" id="gameTime" class="form-control" maxlength=4 placeholder="default-20s">
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-lg" onclick="show_btn();save_cookie();" data-i18n="ok">OK-I18N</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏脚本（原始） -->
+    <script src="./static/index.js"></script>
+</body>
+</html>
