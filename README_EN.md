@@ -5,7 +5,7 @@
 
 # oshit!
 
-_Rhythm Practice_
+_Stamina Practice_
 
 </div>
 
@@ -25,7 +25,7 @@ A mini-game: oshit!
 ## Credits
 
 This project is a modified version of "Eat Kano", a web mini-game originally developed by Xingye.  
-oshit! is a modified version with UI adjustments and parameter tweaks by HongAX.
+oshit! is a modified version with UI adjustments and parameter tweaks by HongAX, and also includes an offline Android app build.
 
 [Original Repository](https://github.com/arcxingye/EatKano)
 |
@@ -38,6 +38,11 @@ oshit! is a modified version with UI adjustments and parameter tweaks by HongAX.
 ## Requirements
 + MySQL 5+
 + PHP 5+
+
+## Download & Install
+You can download the offline version from the **Releases** section at the bottom of the page.
+
+Currently supports **Android 5.0+** only.
 
 ## How to Use
 
@@ -85,3 +90,5 @@ You can freely change the text on the right side — just don't delete the doubl
 Miscellaneous
 
 Don't forget to leave a star ⭐ — Pull requests are always welcome!
+
+```
