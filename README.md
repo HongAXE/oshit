@@ -39,7 +39,11 @@ _底力练习_
 + PHP 5+
 
 ## 下载安装
-在页面最下方的Release部分可以下载离线版。
+有以下两种方式下载oshit!：
+
+[GitHub Release](https://github.com/HongAXE/oshit/releases/)
+|
+[蓝奏云(密码：homg)](https://wwamp.lanzouu.com/iCVya44wdocf)
 
 目前只支持Android 5.0+
 
