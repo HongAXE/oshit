@@ -40,10 +40,15 @@ oshit! is a modified version with UI adjustments and parameter tweaks by HongAX,
 + PHP 5+
 
 ## Download & Install
-You can download the offline version from the **Releases** section at the bottom of the page.
+There are two ways to download oshit!:
+ 
+[GitHub Release](https://github.com/HongAXE/oshit/releases/)
+|
+[蓝奏云(password：hong)](https://wwamp.lanzouu.com/iCVya44wdocf)
 
 Currently supports **Android 5.0+** only.
 
+Already available on Taptap:[oshit!](https://www.taptap.cn/app/919451)
 ## How to Use
 
 > Note: If you just want to play the game, head to the live demo link above.  
