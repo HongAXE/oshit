@@ -213,9 +213,14 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameRestart() {
+        // ===== 新增：恢复点击 =====
+        var layer = document.getElementById('GameLayerBG');
+        if (layer) layer.style.pointerEvents = 'auto';
+        // ===== 新增结束 =====
+
         var backBtn = document.getElementById('practiceBackBtn');
         if (backBtn) backBtn.style.display = 'none';
-        // ... 原有代码
+
         lastIdx = 0;
         lastNotePos = 0;
         _gameBBList = [];
@@ -287,9 +292,15 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameOver() {
+        // ===== 新增：立即禁用点击 =====
+        var layer = document.getElementById('GameLayerBG');
+        if (layer) layer.style.pointerEvents = 'none';
+        // ===== 新增结束 =====
+
         var backBtn = document.getElementById('practiceBackBtn');
         if (backBtn) backBtn.style.display = 'none';
-        // ... 原有代码_gameOver = true;
+
+        _gameOver = true;
         clearInterval(_gameTime);
         let cps = getCPS();
         updatePanel();
