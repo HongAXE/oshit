@@ -213,6 +213,9 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameRestart() {
+        var backBtn = document.getElementById('practiceBackBtn');
+        if (backBtn) backBtn.style.display = 'none';
+        // ... 原有代码
         lastIdx = 0;
         lastNotePos = 0;
         _gameBBList = [];
@@ -229,6 +232,12 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameStart() {
+        // 显示返回键（仅练习模式）
+        var backBtn = document.getElementById('practiceBackBtn');
+        if (backBtn) {
+            backBtn.style.display = (mode === MODE_PRACTICE) ? 'block' : 'none';
+        }
+        // 原有代码保持不变
         _date1 = new Date();
         _gameStartDatetime = _date1.getTime();
         _gameStart = true;
@@ -278,7 +287,9 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameOver() {
-        _gameOver = true;
+        var backBtn = document.getElementById('practiceBackBtn');
+        if (backBtn) backBtn.style.display = 'none';
+        // ... 原有代码_gameOver = true;
         clearInterval(_gameTime);
         let cps = getCPS();
         updatePanel();
@@ -522,9 +533,10 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function getBestScore(score) {
-        let cookieName = (mode === MODE_NORMAL ? 'bast-score' : 'endless-best-score');
-        let best = cookie(cookieName) ? Math.max(parseFloat(cookie(cookieName)), score) : score;
-        cookie(cookieName, best.toFixed(2), 100);
+        var key = (mode === MODE_NORMAL) ? 'best_normal' : 'best_endless';
+        var stored = localStorage.getItem(key);
+        var best = stored ? Math.max(parseFloat(stored), score) : score;
+        localStorage.setItem(key, best.toString());
         return best;
     }
 
@@ -561,6 +573,17 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     w.replayBtn = function() {
         gameRestart();
         hideGameScoreLayer();
+    }
+
+    w.exitPractice = function() {
+        if (mode !== MODE_PRACTICE) return;
+        _gameOver = true;
+        clearInterval(_gameTime);
+        gameRestart();
+        hideGameScoreLayer();
+        showWelcomeLayer();
+        var backBtn = document.getElementById('practiceBackBtn');
+        if (backBtn) backBtn.style.display = 'none';
     }
 
     w.backBtn = function() {
