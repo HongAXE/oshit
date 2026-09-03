@@ -295,3 +295,275 @@ body {
 .dropdown-item {
     cursor: pointer;
 }
+
+/* ============================================================
+   设置面板 - 卡片分组布局
+   ============================================================ */
+
+/* 设置面板整体容器 */
+#setting {
+    background: rgba(12, 12, 16, 0.70) !important;
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 28px;
+    padding: 20px 16px 24px !important;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+    margin-top: 12px;
+    max-width: 420px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* ===== 卡片分组 ===== */
+.setting-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 14px 12px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.setting-card:last-of-type {
+    margin-bottom: 0;
+}
+
+.setting-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.20);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.setting-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== 通用按钮（毛玻璃风格） ===== */
+.btn-setting {
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    border-radius: 30px !important;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 6px 16px !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    height: auto !important;
+    line-height: 1.6 !important;
+}
+
+.btn-setting:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 138, 174, 0.25) !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+/* ===== 键型预设按钮（更紧凑） ===== */
+.btn-pattern {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    border-radius: 20px !important;
+    font-weight: 400;
+    font-size: 12px;
+    padding: 4px 14px !important;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    height: auto !important;
+    line-height: 1.8 !important;
+}
+
+.btn-pattern:hover {
+    background: rgba(255, 138, 174, 0.10) !important;
+    border-color: rgba(255, 138, 174, 0.20) !important;
+    color: #ff8aae !important;
+    transform: translateY(-1px);
+}
+
+/* ===== 主按钮（粉色渐变） ===== */
+.btn-primary-setting {
+    background: linear-gradient(135deg, #ff8aae, #e87090) !important;
+    border: none !important;
+    color: #fff !important;
+    border-radius: 30px !important;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 28px !important;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    height: auto !important;
+    line-height: 1.6 !important;
+    box-shadow: 0 4px 16px rgba(255, 138, 174, 0.2);
+}
+
+.btn-primary-setting:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 138, 174, 0.35);
+}
+
+/* ===== 输入行 ===== */
+.setting-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 2px;
+}
+
+.setting-input-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 500;
+    min-width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.setting-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+    color: #f0e8ec !important;
+    padding: 8px 14px !important;
+    font-size: 14px !important;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    min-width: 0;
+    width: 100%;
+}
+
+.setting-input:focus {
+    border-color: rgba(255, 138, 174, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(255, 138, 174, 0.08) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.setting-input::placeholder {
+    color: rgba(255, 255, 255, 0.20);
+    font-size: 13px;
+}
+
+/* ===== 自定义开关（垂直判定） ===== */
+.toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.60);
+    user-select: none;
+}
+
+.toggle-text {
+    font-weight: 400;
+}
+
+.toggle-switch {
+    display: none;
+}
+
+.toggle-track {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 12px;
+    transition: background 0.3s;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.30);
+    border-radius: 50%;
+    transition: transform 0.3s, background 0.3s;
+}
+
+.toggle-switch:checked + .toggle-track {
+    background: rgba(255, 138, 174, 0.30);
+    border-color: rgba(255, 138, 174, 0.20);
+}
+
+.toggle-switch:checked + .toggle-track::after {
+    transform: translateX(16px);
+    background: #ff8aae;
+}
+
+/* ===== 窄屏适配 ===== */
+@media (max-width: 480px) {
+    #setting {
+        padding: 14px 10px 18px !important;
+        border-radius: 20px !important;
+        max-width: 100% !important;
+    }
+    .setting-card {
+        padding: 10px 8px;
+    }
+    .setting-card-title {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+    .setting-input-label {
+        font-size: 13px;
+        min-width: 34px;
+    }
+    .setting-input {
+        font-size: 13px !important;
+        padding: 6px 10px !important;
+    }
+    .btn-setting {
+        font-size: 12px !important;
+        padding: 4px 12px !important;
+    }
+    .btn-pattern {
+        font-size: 11px !important;
+        padding: 3px 10px !important;
+    }
+    .toggle-label {
+        font-size: 13px;
+    }
+    .toggle-track {
+        width: 32px;
+        height: 18px;
+    }
+    .toggle-track::after {
+        width: 12px;
+        height: 12px;
+        top: 2px;
+        left: 2px;
+    }
+    .toggle-switch:checked + .toggle-track::after {
+        transform: translateX(14px);
+    }
+}
