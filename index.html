@@ -304,46 +304,81 @@
                 </div>
                 
                 <div id="setting" class="container" style="display:none;">
-                    <div class="container mb-3 btn-group">
-                        <a data-i18n="img-before" type="button" class="btn text-nowrap btn-secondary me-1" onclick="getClickBeforeImage()" style="left:0">IMG-BEFORE-I18N</a>
-                        <input type="file" id="click-before-image" accept="image/*" class="d-none" onchange="saveClickBeforeImage()">
-                        <a data-i18n="img-after" type="button" class="btn text-nowrap btn-secondary me-1" onclick="getClickAfterImage()" style="right:0">IMG-AFTER-I18N</a>
-                        <input type="file" id="click-after-image" accept="image/*" style="display:none;" onchange="saveClickAfterImage()">
-                        <a id="sound" type="button" class="btn text-nowrap btn-secondary" onclick="changeSoundMode()"></a>
+                    <!-- ===== 卡片1：音画设置 ===== -->
+                    <div class="setting-card">
+                        <div class="setting-card-title">🎵 音画设置</div>
+                        <div class="setting-card-body" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;">
+                            <button type="button" class="btn-setting" onclick="getClickBeforeImage()">🖼️ 点击前图</button>
+                            <input type="file" id="click-before-image" accept="image/*" class="d-none" onchange="saveClickBeforeImage()">
+                            <button type="button" class="btn-setting" onclick="getClickAfterImage()">🖼️ 点击后图</button>
+                            <input type="file" id="click-after-image" accept="image/*" class="d-none" onchange="saveClickAfterImage()">
+
+                            <!-- ===== 打击音效 ===== -->
+                            <button type="button" class="btn-setting" onclick="document.getElementById('customSoundInput').click();">🎵 选择音效</button>
+                            <input type="file" id="customSoundInput" accept="audio/*" style="display:none;" onchange="saveCustomSound(event)">
+                            <button type="button" class="btn-setting" onclick="resetCustomSound()">↩️ 恢复默认</button>
+
+                            <!-- ===== 音效开关（改为滑动开关，移到最右边） ===== -->
+                            <label class="toggle-label">
+                                <span class="toggle-text">音效</span>
+                                <input type="checkbox" id="soundSwitch" class="toggle-switch">
+                                <span class="toggle-track"></span>
+                            </label>
+                            <!-- ===== 音效开关结束 ===== -->
+                        </div>
                     </div>
 
-                    <!-- ===== 键型预设按钮（无输入框） ===== -->
-                    <div class="d-flex flex-wrap mb-3" style="gap:6px; justify-content:center;">
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('!')">随机</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@')">无纵连</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@#')">短纵</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('2222')">全纵连</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('3232')">交互</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setStair()">楼梯</button>
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPattern('@##')">三纵</button>
+                    <!-- ===== 卡片2：键型预设 ===== -->
+                    <div class="setting-card">
+                        <div class="setting-card-title">⌨️ 键型预设</div>
+                        <div class="setting-card-body" style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                            <button type="button" class="btn-pattern" onclick="setPattern('!')">随机</button>
+                            <button type="button" class="btn-pattern" onclick="setPattern('@')">无纵连</button>
+                            <button type="button" class="btn-pattern" onclick="setPattern('@#')">短纵</button>
+                            <button type="button" class="btn-pattern" onclick="setPattern('2222')">全纵连</button>
+                            <button type="button" class="btn-pattern" onclick="setPattern('3232')">交互</button>
+                            <button type="button" class="btn-pattern" onclick="setStair()">楼梯</button>
+                            <button type="button" class="btn-pattern" onclick="setPattern('@##')">三纵</button>
+                        </div>
                     </div>
-                    <!-- ===== 键型预设结束 ===== -->
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend col-2">
-                            <span class="input-group-text" data-i18n="title">TITLE-I18N</span>
+                    <!-- ===== 卡片3：辅助功能 ===== -->
+                    <div class="setting-card">
+                        <div class="setting-card-title">⚙️ 辅助功能</div>
+                        <div class="setting-card-body" style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center;">
+                            <!-- 垂直判定 -->
+                            <label class="toggle-label">
+                                <span class="toggle-text">垂直判定</span>
+                                <input type="checkbox" id="verticalJudge" class="toggle-switch">
+                                <span class="toggle-track"></span>
+                            </label>
                         </div>
-                        <input data-placeholder-i18n="eat-kano" type="text" id="title" class="form-control" placeholder="EAT-KANO-I18N">
                     </div>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend col-2">
-                            <span data-i18n="key" class="input-group-text">KEY-I18N</span>
+
+                    <!-- ===== 卡片4：基本设置 ===== -->
+                    <div class="setting-card">
+                        <div class="setting-card-title">📝 基本设置</div>
+                        <div class="setting-card-body" style="display:flex; flex-direction:column; gap:10px;">
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">标题</span>
+                                <input data-placeholder-i18n="eat-kano" type="text" id="title" class="setting-input" placeholder="EAT-KANO-I18N">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">按键</span>
+                                <input data-placeholder-i18n="default-dfjk" type="text" id="keyboard" class="setting-input" maxlength="4" placeholder="DFJK-I18N">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">时间</span>
+                                <input data-placeholder-i18n="default-20s" type="text" id="gameTime" class="setting-input" maxlength="4" placeholder="default-20s">
+                            </div>
                         </div>
-                        <input data-placeholder-i18n="default-dfjk" type="text" id="keyboard" class="form-control" maxlength=4 placeholder="DFJK-I18N">
                     </div>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend col-2">
-                            <span data-i18n="time" class="input-group-text">TIME-I18N</span>
-                        </div>
-                        <input data-placeholder-i18n="default-20s" type="text" id="gameTime" class="form-control" maxlength=4 placeholder="default-20s">
+
+                    <!-- ===== 底部按钮 ===== -->
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px;">
+                        <button type="button" class="btn-setting" onclick="window.open('privacy-policy.html', '_blank');">📄 隐私政策</button>
+                        <button type="button" class="btn-primary-setting" onclick="show_btn();save_cookie();" data-i18n="ok">✓ 确定</button>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-lg" onclick="window.open('privacy-policy.html', '_blank');" style="margin-bottom:8px;">📄 隐私政策</button>
-                    <button type="button" class="btn btn-secondary btn-lg" onclick="show_btn();save_cookie();" data-i18n="ok">OK-I18N</button>
                 </div>
                 
             </div>
