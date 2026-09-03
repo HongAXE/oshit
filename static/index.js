@@ -103,17 +103,33 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function getSoundMode() {
-        return cookie('soundMode') ? cookie('soundMode') : 'on';
+        // 优先从 localStorage 读取
+        var soundFromLS = localStorage.getItem('soundMode');
+        if (soundFromLS !== null) {
+            return soundFromLS;
+        }
+        // 没有则从 cookie 读取
+        var soundFromCookie = cookie('soundMode');
+        if (soundFromCookie) {
+            // 迁移到 localStorage
+            localStorage.setItem('soundMode', soundFromCookie);
+            return soundFromCookie;
+        }
+        // 默认开启
+        localStorage.setItem('soundMode', 'on');
+        return 'on';
     }
 
     w.changeSoundMode = function() {
+        var checkbox = document.getElementById('soundSwitch');
         if (soundMode === 'on') {
             soundMode = 'off';
-            $('#sound').text(I18N['sound-off']);
+            checkbox.checked = false;
         } else {
             soundMode = 'on';
-            $('#sound').text(I18N['sound-on']);
+            checkbox.checked = true;
         }
+        localStorage.setItem('soundMode', soundMode);
         cookie('soundMode', soundMode);
     }
 
@@ -203,12 +219,21 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
 
     let _gameStartTime, _gameStartDatetime;
 
+    let _fsj = false;   // 垂直判定开关
+
     function gameInit() {
         // 已使用原生 HTML5 Audio，无需注册 createjs.Sound
         // 预加载音频（提前缓存，减少首次播放延迟）
         audioTap.load();
         audioErr.load();
         audioEnd.load();
+        // ===== 加载自定义打击音效 =====
+        var customSound = localStorage.getItem('customTapSound');
+        if (customSound) {
+            audioTap.src = customSound;
+            audioTap.load();
+        }
+        // ===== 结束 =====
         gameRestart();
     }
 
@@ -476,16 +501,35 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         var y = e.clientY || e.targetTouches[0].clientY,
             x = (e.clientX || e.targetTouches[0].clientX) - body.offsetLeft,
             p = _gameBBList[_gameBBListIndex];
-        if (y > touchArea[0] || y < touchArea[1]) {
-            return false;
+
+        // ===== 垂直判定：如果开启，忽略 y 坐标限制 =====
+        if (!_fsj) {
+            if (y > touchArea[0] || y < touchArea[1]) {
+                return false;
+            }
         }
-        if ((p.id === tar.id && tar.notEmpty) || (p.cell === 0 && x < blockSize) || (p.cell === 1 && x > blockSize && x < 2 *
-                blockSize) || (p.cell === 2 && x > 2 * blockSize && x < 3 * blockSize) || (p.cell === 3 && x > 3 * blockSize)) {
+        // ===== 垂直判定结束 =====
+
+        // 判断是否命中该 Note
+        var hit = false;
+        if (_fsj) {
+            // 垂直判定模式：只检查列号
+            var col = Math.floor(x / blockSize);
+            if (col === p.cell) {
+                hit = true;
+            }
+        } else {
+            // 原有判定逻辑
+            if ((p.id === tar.id && tar.notEmpty) || (p.cell === 0 && x < blockSize) || (p.cell === 1 && x > blockSize && x < 2 * blockSize) || (p.cell === 2 && x > 2 * blockSize && x < 3 * blockSize) || (p.cell === 3 && x > 3 * blockSize)) {
+                hit = true;
+            }
+        }
+
+        if (hit) {
             if (!_gameStart) {
                 gameStart();
             }
             if (soundMode === 'on') {
-                // 使用原生 HTML5 Audio 播放点击音效
                 audioTap.currentTime = 0;
                 audioTap.play().catch(function(e) {});
             }
@@ -497,7 +541,6 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             gameLayerMoveNextRow();
         } else if (_gameStart && !tar.notEmpty) {
             if (soundMode === 'on') {
-                // 使用原生 HTML5 Audio 播放错误音效
                 audioErr.currentTime = 0;
                 audioErr.play().catch(function(e) {});
             }
@@ -673,13 +716,39 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
     // ===== 键型预设结束 =====
 
+    // ===== 修改后的  =====
     function initSetting() {
         $("#username").val(cookie("username") ? cookie("username") : "");
         $("#message").val(cookie("message") ? cookie("message") : "");
-        if (cookie("title")) {
-            $('title').text(cookie('title'));
-            $('#title').val(cookie('title'));
+
+        // ===== 读取标题 =====
+        var titleFromLS = localStorage.getItem('title');
+        var titleFromCookie = cookie('title');
+        if (titleFromLS) {
+            // 更新浏览器标签标题
+            $('title').text(titleFromLS);
+            // 更新设置输入框
+            $('#title').val(titleFromLS);
+            // ★ 同步更新主页大标题
+            $('[data-i18n="game-title"]').text(titleFromLS);
+        } else if (titleFromCookie) {
+            $('title').text(titleFromCookie);
+            $('#title').val(titleFromCookie);
+            $('[data-i18n="game-title"]').text(titleFromCookie);
+            localStorage.setItem('title', titleFromCookie);
+        } else {
+            // 无自定义标题，恢复默认（来自 I18N）
+            var defaultTitle = I18N ? I18N['game-title'] : 'oshit!';
+            $('title').text(defaultTitle);
+            $('#title').val('');
+            $('[data-i18n="game-title"]').text(defaultTitle);
+            // 清除存储
+            localStorage.removeItem('title');
+            cookie('title', '', -1);
         }
+        // ===== 标题读取结束 =====
+
+        // 键盘、时间、键型等原有逻辑保持不变
         let keyboard = cookie('keyboard');
         if (keyboard) {
             keyboard = keyboard.toString().toLowerCase();
@@ -690,17 +759,48 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             map[keyboard.charAt(2)] = 3;
             map[keyboard.charAt(3)] = 4;
         }
-        if (cookie('gameTime')) {
-            $('#gameTime').val(cookie('gameTime'));
-            _gameSettingNum = parseInt(cookie('gameTime'));
+
+        var timeFromLS = localStorage.getItem('gameTime');
+        var timeFromCookie = cookie('gameTime');
+        if (timeFromLS) {
+            $('#gameTime').val(timeFromLS);
+            _gameSettingNum = parseInt(timeFromLS);
+        } else if (timeFromCookie) {
+            $('#gameTime').val(timeFromCookie);
+            _gameSettingNum = parseInt(timeFromCookie);
+            localStorage.setItem('gameTime', timeFromCookie);
+        } else {
+            $('#gameTime').val('20');
+            _gameSettingNum = 20;
+            localStorage.removeItem('gameTime');
+            cookie('gameTime', '', -1);
+        }
+        if (_gameSettingNum) {
             gameRestart();
         }
-        // 读取保存的键型
+
         if (cookie('pattern')) {
             keyPattern = cookie('pattern').split('');
             filterPattern();
             gameRestart();
         }
+
+        // 读取垂直判定
+        var fsjFromLS = localStorage.getItem('fsj');
+        if (fsjFromLS === 'true') {
+            _fsj = true;
+        } else {
+            _fsj = false;
+        }
+        document.getElementById('verticalJudge').checked = _fsj;
+        // 读取垂直判定结束
+
+        // ===== 新增：同步音效开关 =====
+        var soundCheckbox = document.getElementById('soundSwitch');
+        if (soundCheckbox) {
+            soundCheckbox.checked = (soundMode === 'on');
+        }
+        // ===== 音效开关同步结束 =====
     }
 
     w.show_btn = function() {
@@ -709,23 +809,67 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     w.show_setting = function() {
-        $('#btn_group,#desc').css('display', 'none')
-        $('#setting').css('display', 'block')
-        $('#sound').text(soundMode === 'on' ? I18N['sound-on'] : I18N['sound-off']);
-        // 注意：没有 #pattern-input 操作
+        $('#btn_group,#desc').css('display', 'none');
+        $('#setting').css('display', 'block');
+        // 同步音效开关
+        var checkbox = document.getElementById('soundSwitch');
+        if (checkbox) {
+            checkbox.checked = (soundMode === 'on');
+        }
+        document.getElementById('verticalJudge').checked = _fsj;
     }
 
     w.save_cookie = function() {
         const settings = ['username', 'message', 'keyboard', 'title', 'gameTime'];
         for (let s of settings) {
-            let value=$(`#${s}`).val();
-            if(value){
+            let value = $(`#${s}`).val();
+            if (value && value.trim() !== '') {
                 cookie(s, value.toString(), 100);
+                if (s === 'title' || s === 'gameTime') {
+                    localStorage.setItem(s, value.toString());
+                }
+            } else {
+                // 清空存储
+                cookie(s, '', -1);
+                if (s === 'title' || s === 'gameTime') {
+                    localStorage.removeItem(s);
+                }
             }
         }
-        // 没有 #pattern-input 读取，键型由预设按钮单独保存
+
+        // 保存垂直判定
+        var fsjChecked = document.getElementById('verticalJudge').checked;
+        _fsj = fsjChecked;
+        localStorage.setItem('fsj', fsjChecked.toString());
+        cookie('fsj', fsjChecked ? '1' : '0', 100);
+        // 保存垂直判定结束
+
         initSetting();
     }
+
+    // ===== 自定义打击音效保存 =====
+    w.saveCustomSound = function(e) {
+        var file = e.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var dataUrl = ev.target.result;
+                localStorage.setItem('customTapSound', dataUrl);
+                audioTap.src = dataUrl;
+                audioTap.load();
+                alert('打击音效已更新！');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    w.resetCustomSound = function() {
+        localStorage.removeItem('customTapSound');
+        audioTap.src = './static/music/tap.mp3';
+        audioTap.load();
+        alert('已恢复默认打击音效');
+    }
+    // ===== 结束 =====
 
     function isnull(val) {
         let str = val.replace(/(^\s*)|(\s*$)/g, '');
