@@ -264,6 +264,12 @@
                 <div class="col-3" data-i18n="best"></div>
                 <div class="col-2" id="best"></div>
             </div>
+            <!-- ===== 键型显示（修复换行） ===== -->
+            <div id="GameScoreLayer-pattern" class="mb-2 d-flex flex-row justify-content-center text-start">
+                <div class="col-3" style="color:rgba(255,255,255,0.45); white-space:nowrap;">键型</div>
+                <div class="col-2" id="pattern-display" style="color:#ffffff; font-weight:600; white-space:nowrap;"></div>
+            </div>
+            <!-- ===== 键型显示结束 ===== -->
             <button type="button" class="btn btn-secondary btn-lg" id="replay" onclick="replayBtn()" data-i18n="again">AGAIN-I18N</button>
             <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.reload()" data-i18n="home">HOME-I18N</button>
             <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='https://github.com/HongAXE/oshit'" data-i18n="repo">REPO-I18N</button>
@@ -318,13 +324,12 @@
                             <input type="file" id="customSoundInput" accept="audio/*" style="display:none;" onchange="saveCustomSound(event)">
                             <button type="button" class="btn-setting" onclick="resetCustomSound()">↩️ 恢复默认</button>
 
-                            <!-- ===== 音效开关（改为滑动开关，移到最右边） ===== -->
+                            <!-- ===== 音效开关 ===== -->
                             <label class="toggle-label">
                                 <span class="toggle-text">音效</span>
                                 <input type="checkbox" id="soundSwitch" class="toggle-switch">
                                 <span class="toggle-track"></span>
                             </label>
-                            <!-- ===== 音效开关结束 ===== -->
                         </div>
                     </div>
 
@@ -346,7 +351,6 @@
                     <div class="setting-card">
                         <div class="setting-card-title">⚙️ 辅助功能</div>
                         <div class="setting-card-body" style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center;">
-                            <!-- 垂直判定 -->
                             <label class="toggle-label">
                                 <span class="toggle-text">垂直判定</span>
                                 <input type="checkbox" id="verticalJudge" class="toggle-switch">
@@ -374,11 +378,49 @@
                         </div>
                     </div>
 
-                    <!-- ===== 底部按钮 ===== -->
-                    <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px;">
-                        <button type="button" class="btn-setting" onclick="window.open('privacy-policy.html', '_blank');">📄 隐私政策</button>
-                        <button type="button" class="btn-primary-setting" onclick="show_btn();save_cookie();" data-i18n="ok">✓ 确定</button>
+                    <!-- ===== 卡片5：评级设置 ===== -->
+                    <div class="setting-card">
+                        <div class="setting-card-title">🏷️ 评级设置</div>
+                        <div class="setting-card-body" style="display:flex; flex-direction:column; gap:10px;">
+                            <!-- 显示评级开关 -->
+                            <div style="display:flex; align-items:center; justify-content:space-between; padding:0 4px;">
+                                <span style="color:rgba(255,255,255,0.6); font-size:14px;">显示评级</span>
+                                <label class="toggle-label" style="margin:0;">
+                                    <input type="checkbox" id="showRatingSwitch" class="toggle-switch">
+                                    <span class="toggle-track"></span>
+                                </label>
+                            </div>
+                            <!-- 五个评级名称输入 -->
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">LV1</span>
+                                <input type="text" id="levelName1" class="setting-input" placeholder="再练练">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">LV2</span>
+                                <input type="text" id="levelName2" class="setting-input" placeholder="有点弱">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">LV3</span>
+                                <input type="text" id="levelName3" class="setting-input" placeholder="还不错">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">LV4</span>
+                                <input type="text" id="levelName4" class="setting-input" placeholder="太强了">
+                            </div>
+                            <div class="setting-input-row">
+                                <span class="setting-input-label">LV5</span>
+                                <input type="text" id="levelName5" class="setting-input" placeholder="外星人">
+                            </div>
+                        </div>
                     </div>
+
+
+                </div>
+
+                <!-- ===== 底部按钮（固定在外部） ===== -->
+                <div id="setting-footer">
+                    <button type="button" class="btn-setting" onclick="window.open('privacy-policy.html', '_blank');">📄 隐私政策</button>
+                    <button type="button" class="btn-primary-setting" onclick="show_btn();save_cookie();" data-i18n="ok">✓ 确定</button>
                 </div>
                 
             </div>
