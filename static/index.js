@@ -548,7 +548,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         if (_fsj) {
             // 垂直判定模式：只检查列号
             var col = Math.floor(x / blockSize);
-            if (col === p.cell) {
+if (col === p.cell) {
                 hit = true;
             }
         } else {
@@ -727,30 +727,32 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function cookie(name, value, time) {
-        if (name) {
-            if (value !== undefined && value !== null) {
-                // 设置或更新 Cookie
-                if (time) {
-                    let date = new Date();
-                    date.setTime(date.getTime() + 864e5 * time);
-                    time = date.toGMTString();
+        if (arguments.length === 0) {
+            // 读取所有 Cookie
+            var data = {};
+            var cookies = document.cookie.replace(/\s/g, "").split(";");
+            for (var i = 0; i < cookies.length; i++) {
+                var parts = cookies[i].split("=");
+                if (parts[1]) {
+                    data[parts[0]] = unescape(parts[1]);
                 }
-                return document.cookie = name + "=" + escape(toStr(value)) + (time ? "; expires=" + time : ""), !0;
-            } else {
-                // 删除 Cookie（将过期时间设为过去）
-                return document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;", !0;
             }
+            return data;
         }
-        // 读取所有 Cookie
-        let data = {};
-        let cookies = document.cookie.replace(/\s/g, "").split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            let parts = cookies[i].split("=");
-            if (parts[1]) {
-                data[parts[0]] = unescape(parts[1]);
+        if (value !== undefined && value !== null) {
+            // 设置或更新 Cookie
+            if (time) {
+                var date = new Date();
+                date.setTime(date.getTime() + 864e5 * time);
+                time = date.toGMTString();
             }
+            document.cookie = name + "=" + escape(toStr(value)) + (time ? "; expires=" + time : "") + "; path=/";
+            return true;
+        } else {
+            // 删除 Cookie（设置过期时间为过去）
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            return true;
         }
-        return data;
     }
 
     document.write(createGameLayer());
