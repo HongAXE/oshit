@@ -57,6 +57,39 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     const chs = ['@', '!', '#', '&', '+', '-', '%', '*'];
     // ===== 键型系统结束 =====
 
+    // ===== 键型名称映射 =====
+    function getPatternName(pattern) {
+        var p = pattern.join('');
+        var map = {
+            '!': '随机',
+            '@': '无纵连',
+            '@#': '短纵',
+            '2222': '全纵连',
+            '3232': '交互',
+            '@##': '三纵'
+        };
+        // 楼梯是动态生成的，单独判断
+        var isStair = true;
+        var len = pattern.length;
+        // 楼梯的特征：1,2,3,4,3,2 或 1,2,3,2,1 等
+        if (len >= 4) {
+            var half = Math.ceil(len / 2);
+            for (var i = 0; i < half; i++) {
+                if (parseInt(pattern[i]) !== i + 1) { isStair = false; break; }
+            }
+            for (var i = half; i < len; i++) {
+                if (parseInt(pattern[i]) !== len - i) { isStair = false; break; }
+            }
+        } else {
+            isStair = false;
+        }
+        if (isStair && len >= 4) {
+            return '楼梯';
+        }
+        return map[p] || p;
+    }
+    // ===== 键型名称映射结束 =====
+
     if (isDesktop) {
         document.write('<div id="gameBody">');
         document.onkeydown = function (e) {
@@ -587,10 +620,12 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function getBestScore(score) {
-        var key = (mode === MODE_NORMAL) ? 'best_normal' : 'best_endless';
-        var stored = localStorage.getItem(key);
+        var modeKey = (mode === MODE_NORMAL) ? 'normal' : 'endless';
+        var patternKey = keyPattern.join('') || 'default';
+        var storageKey = 'best_' + modeKey + '_' + patternKey;
+        var stored = localStorage.getItem(storageKey);
         var best = stored ? Math.max(parseFloat(stored), score) : score;
-        localStorage.setItem(key, best.toString());
+        localStorage.setItem(storageKey, best.toString());
         return best;
     }
 
@@ -616,6 +651,11 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         $('#score').text(scoreToString(score));
         $('#GameScoreLayer-score').css('display', mode === MODE_ENDLESS ? 'none' : '');
         $('#best').text(scoreToString(best));
+
+        // ===== 显示当前键型（统一样式） =====
+        var patternName = getPatternName(keyPattern);
+        $('#pattern-display').text(patternName);
+        // ===== 结束 =====
 
         l.css('display', 'block');
     }
@@ -656,11 +696,26 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             SubmitResults();
         }
 
-        if (cps <= 5) return I18N['text-level-1'];
-        if (cps <= 8) return I18N['text-level-2'];
-        if (cps <= 10)  return I18N['text-level-3'];
-        if (cps <= 15) return I18N['text-level-4'];
-        return I18N['text-level-5'];
+        // 读取评级开关和自定义名称
+        var showRating = localStorage.getItem('showRating');
+        if (showRating === null) showRating = 'true';
+        if (showRating === 'false') return '';
+
+        var names = [];
+        for (var i = 1; i <= 5; i++) {
+            var name = localStorage.getItem('levelName' + i);
+            if (name && name.trim() !== '') {
+                names.push(name.trim());
+            } else {
+                names.push(I18N['text-level-' + i] || 'LV' + i);
+            }
+        }
+
+        if (cps <= 5) return names[0];
+        if (cps <= 8) return names[1];
+        if (cps <= 10) return names[2];
+        if (cps <= 15) return names[3];
+        return names[4];
     }
 
     function toStr(obj) {
@@ -801,16 +856,31 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             soundCheckbox.checked = (soundMode === 'on');
         }
         // ===== 音效开关同步结束 =====
+        
+        // ===== 读取评级设置 =====
+        var showRating = localStorage.getItem('showRating');
+        if (showRating !== null) {
+            document.getElementById('showRatingSwitch').checked = (showRating === 'true');
+        } else {
+            document.getElementById('showRatingSwitch').checked = true;
+        }
+        for (var i = 1; i <= 5; i++) {
+            var val = localStorage.getItem('levelName' + i);
+            if (val) document.getElementById('levelName' + i).value = val;
+        }
+        // ===== 评级设置读取结束 =====
     }
 
     w.show_btn = function() {
-        $("#btn_group,#desc").css('display', 'block')
-        $('#setting').css('display', 'none')
+        $("#btn_group,#desc").css('display', 'block');
+        $('#setting').css('display', 'none');
+        $('#setting-footer').css('display', 'none');  // 隐藏底部按钮
     }
 
     w.show_setting = function() {
         $('#btn_group,#desc').css('display', 'none');
         $('#setting').css('display', 'block');
+        $('#setting-footer').css('display', 'flex');  // 显示底部按钮
         // 同步音效开关
         var checkbox = document.getElementById('soundSwitch');
         if (checkbox) {
@@ -843,6 +913,15 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         localStorage.setItem('fsj', fsjChecked.toString());
         cookie('fsj', fsjChecked ? '1' : '0', 100);
         // 保存垂直判定结束
+
+        // ===== 保存评级设置 =====
+        var showRating = document.getElementById('showRatingSwitch').checked;
+        localStorage.setItem('showRating', showRating ? 'true' : 'false');
+        for (var i = 1; i <= 5; i++) {
+            var val = document.getElementById('levelName' + i).value.trim();
+            localStorage.setItem('levelName' + i, val);
+        }
+        // ===== 评级设置保存结束 =====
 
         initSetting();
     }
