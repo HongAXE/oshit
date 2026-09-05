@@ -43,7 +43,7 @@ _底力练习_
 
 [GitHub Release](https://github.com/HongAXE/oshit/releases/)
 |
-[蓝奏云(密码：hong)](https://wwamp.lanzouu.com/ioSWR44wl8ch)
+[蓝奏云(密码：hong)](https://wwamp.lanzouu.com/b00zywz8yf)
 
 目前只支持Android 5.0+
 
