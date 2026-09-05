@@ -880,13 +880,30 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     w.show_setting = function() {
         $('#btn_group,#desc').css('display', 'none');
         $('#setting').css('display', 'block');
-        $('#setting-footer').css('display', 'flex');  // 显示底部按钮
+        $('#setting-footer').css('display', 'flex');
+
         // 同步音效开关
         var checkbox = document.getElementById('soundSwitch');
         if (checkbox) {
             checkbox.checked = (soundMode === 'on');
         }
+        // 同步垂直判定
         document.getElementById('verticalJudge').checked = _fsj;
+
+        // ===== 新增：同步评级设置 =====
+        var showRating = localStorage.getItem('showRating');
+        if (showRating !== null) {
+            document.getElementById('showRatingSwitch').checked = (showRating === 'true');
+        } else {
+            document.getElementById('showRatingSwitch').checked = true;
+        }
+        for (var i = 1; i <= 5; i++) {
+            var val = localStorage.getItem('levelName' + i);
+            if (val) {
+                document.getElementById('levelName' + i).value = val;
+            }
+        }
+        // ===== 评级设置同步结束 =====
     }
 
     w.save_cookie = function() {
@@ -899,7 +916,6 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
                     localStorage.setItem(s, value.toString());
                 }
             } else {
-                // 清空存储
                 cookie(s, '', -1);
                 if (s === 'title' || s === 'gameTime') {
                     localStorage.removeItem(s);
@@ -907,12 +923,19 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             }
         }
 
-        // 保存垂直判定
+        // ===== 保存垂直判定 =====
         var fsjChecked = document.getElementById('verticalJudge').checked;
         _fsj = fsjChecked;
         localStorage.setItem('fsj', fsjChecked.toString());
         cookie('fsj', fsjChecked ? '1' : '0', 100);
-        // 保存垂直判定结束
+        // ===== 垂直判定保存结束 =====
+
+        // ===== 新增：保存音效开关 =====
+        var soundChecked = document.getElementById('soundSwitch').checked;
+        soundMode = soundChecked ? 'on' : 'off';
+        localStorage.setItem('soundMode', soundMode);
+        cookie('soundMode', soundMode);
+        // ===== 音效开关保存结束 =====
 
         // ===== 保存评级设置 =====
         var showRating = document.getElementById('showRatingSwitch').checked;
