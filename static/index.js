@@ -882,15 +882,29 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         $('#setting').css('display', 'block');
         $('#setting-footer').css('display', 'flex');
 
+        // ===== 从存储恢复垂直判定状态 =====
+        var fsjStored = localStorage.getItem('fsj');
+        if (fsjStored !== null) {
+            _fsj = (fsjStored === 'true');
+        } else {
+            // 兼容旧 cookie（如有）
+            var cookieVal = cookie('fsj');
+            if (cookieVal !== null) {
+                _fsj = (cookieVal === '1');
+            } else {
+                _fsj = false;   // 默认关闭
+            }
+        }
+        // 同步垂直判定开关
+        document.getElementById('verticalJudge').checked = _fsj;
+
         // 同步音效开关
         var checkbox = document.getElementById('soundSwitch');
         if (checkbox) {
             checkbox.checked = (soundMode === 'on');
         }
-        // 同步垂直判定
-        document.getElementById('verticalJudge').checked = _fsj;
 
-        // ===== 新增：同步评级设置 =====
+        // ===== 同步评级设置 =====
         var showRating = localStorage.getItem('showRating');
         if (showRating !== null) {
             document.getElementById('showRatingSwitch').checked = (showRating === 'true');
