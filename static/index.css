@@ -579,3 +579,21 @@ body {
     justify-content: center;
     margin-top: 12px;
 }
+
+/* 修复下拉菜单选项文字颜色（暗色主题适配） */
+#welcome .dropdown-item {
+    color: #f0f6fc !important;
+    background: transparent !important;
+    transition: all 0.2s ease;
+}
+
+#welcome .dropdown-item:hover,
+#welcome .dropdown-item:focus {
+    background: rgba(255, 138, 174, 0.15) !important;
+    color: #ff8aae !important;
+}
+
+#welcome .dropdown-item:active {
+    background: rgba(255, 138, 174, 0.25) !important;
+    color: #fff !important;
+}
