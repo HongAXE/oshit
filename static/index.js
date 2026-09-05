@@ -728,22 +728,28 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
 
     function cookie(name, value, time) {
         if (name) {
-            if (value) {
+            if (value !== undefined && value !== null) {
+                // 设置或更新 Cookie
                 if (time) {
                     let date = new Date();
-                    date.setTime(date.getTime() + 864e5 * time), time = date.toGMTString();
+                    date.setTime(date.getTime() + 864e5 * time);
+                    time = date.toGMTString();
                 }
-                return document.cookie = name + "=" + escape(toStr(value)) + (time ? "; expires=" + time + (arguments[3] ?
-                    "; domain=" + arguments[3] + (arguments[4] ? "; path=" + arguments[4] + (arguments[5] ? "; secure" : "") : "") :
-                    "") : ""), !0;
+                return document.cookie = name + "=" + escape(toStr(value)) + (time ? "; expires=" + time : ""), !0;
+            } else {
+                // 删除 Cookie（将过期时间设为过去）
+                return document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;", !0;
             }
-            return value = document.cookie.match("(?:^|;)\\s*" + name.replace(/([-.*+?^${}()|[\]\/\\])/g, "\\$1") + "=([^;]*)"),
-                value = value && "string" == typeof value[1] ? unescape(value[1]) : !1, (/^(\{|\[).+\}|\]$/.test(value) ||
-                /^[0-9]+$/g.test(value)) && eval("value=" + value), value;
         }
+        // 读取所有 Cookie
         let data = {};
-        value = document.cookie.replace(/\s/g, "").split(";");
-        for (let i = 0; value.length > i; i++) name = value[i].split("="), name[1] && (data[name[0]] = unescape(name[1]));
+        let cookies = document.cookie.replace(/\s/g, "").split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let parts = cookies[i].split("=");
+            if (parts[1]) {
+                data[parts[0]] = unescape(parts[1]);
+            }
+        }
         return data;
     }
 
@@ -930,7 +936,8 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
                     localStorage.setItem(s, value.toString());
                 }
             } else {
-                cookie(s, '', -1);
+                // 清空存储（传递 null 触发删除 Cookie）
+                cookie(s, null);
                 if (s === 'title' || s === 'gameTime') {
                     localStorage.removeItem(s);
                 }
@@ -944,7 +951,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         cookie('fsj', fsjChecked ? '1' : '0', 100);
         // ===== 垂直判定保存结束 =====
 
-        // ===== 新增：保存音效开关 =====
+        // ===== 保存音效开关 =====
         var soundChecked = document.getElementById('soundSwitch').checked;
         soundMode = soundChecked ? 'on' : 'off';
         localStorage.setItem('soundMode', soundMode);
@@ -961,7 +968,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         // ===== 评级设置保存结束 =====
 
         initSetting();
-    }
+    };
 
     // ===== 自定义打击音效保存 =====
     w.saveCustomSound = function(e) {
