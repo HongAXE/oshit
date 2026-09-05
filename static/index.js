@@ -548,7 +548,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         if (_fsj) {
             // 垂直判定模式：只检查列号
             var col = Math.floor(x / blockSize);
-if (col === p.cell) {
+            if (col === p.cell) {
                 hit = true;
             }
         } else {
@@ -739,18 +739,27 @@ if (col === p.cell) {
             }
             return data;
         }
-        if (value !== undefined && value !== null) {
-            // 设置或更新 Cookie
+        if (arguments.length === 1) {
+            // 读取单个 Cookie
+            var match = document.cookie.match("(?:^|;)\\s*" + name.replace(/([-.*+?^${}()|[\]\/\\])/g, "\\$1") + "=([^;]*)");
+            if (match && match[1]) {
+                return unescape(match[1]);
+            }
+            return null;
+        }
+        // 设置或删除
+        if (value === null) {
+            // 删除
+            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            return true;
+        } else {
+            // 设置
             if (time) {
                 var date = new Date();
                 date.setTime(date.getTime() + 864e5 * time);
                 time = date.toGMTString();
             }
             document.cookie = name + "=" + escape(toStr(value)) + (time ? "; expires=" + time : "") + "; path=/";
-            return true;
-        } else {
-            // 删除 Cookie（设置过期时间为过去）
-            document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             return true;
         }
     }
@@ -807,7 +816,7 @@ if (col === p.cell) {
             $('[data-i18n="game-title"]').text(defaultTitle);
             // 清除存储
             localStorage.removeItem('title');
-            cookie('title', '', -1);
+            cookie('title', null);
         }
         // ===== 标题读取结束 =====
 
