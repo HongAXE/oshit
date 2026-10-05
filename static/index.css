@@ -597,3 +597,70 @@ body {
     background: rgba(255, 138, 174, 0.25) !important;
     color: #fff !important;
 }
+
+/* ============================================================
+   横竖屏切换
+   ============================================================ */
+
+/* 横屏模式：旋转整个 body */
+body.landscape {
+    position: fixed !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* 横屏时，游戏相关层改为 absolute，随 body 一起旋转 */
+body.landscape #welcome,
+body.landscape #GameTimeLayer,
+body.landscape #GameLayerBG,
+body.landscape #GameScoreLayer.SHADE {
+    position: absolute !important;
+}
+
+/* ============================================================
+   横屏模式下设置面板适配（修复底部按钮不可见）
+   ============================================================ */
+
+/* 横屏时欢迎层允许滚动，避免内容被裁掉 */
+body.landscape #welcome {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* 横屏时顶部留一点内边距，内容从顶部开始排 */
+body.landscape .FILL.BOX-M {
+    padding: 16px 0;
+    box-sizing: border-box;
+}
+
+/* 横屏时设置面板最大高度按"可视高度"算
+   横屏下 100vw = 原屏幕宽度 = 可视高度
+   减去 160px 留给标题、间距、底部按钮 */
+body.landscape #setting {
+    max-height: calc(100vw - 160px) !important;
+    padding: 12px 14px !important;
+}
+
+/* 横屏时容器宽度稍微收窄一点，避免溢出 */
+body.landscape #welcome .container {
+    max-width: 94% !important;
+    width: 94% !important;
+}
+
+/* 横屏下卡片更紧凑 */
+body.landscape .setting-card {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+
+body.landscape .setting-card-title {
+    margin-bottom: 6px;
+    font-size: 10px;
+}
+
+/* 横屏下底部按钮距离稍小 */
+body.landscape #setting-footer {
+    margin-top: 8px;
+    padding-bottom: 4px;
+}
