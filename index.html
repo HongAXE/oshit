@@ -271,7 +271,7 @@
             </div>
             <!-- ===== 键型显示结束 ===== -->
             <button type="button" class="btn btn-secondary btn-lg" id="replay" onclick="replayBtn()" data-i18n="again">AGAIN-I18N</button>
-            <button type="button" class="btn btn-secondary btn-lg" onclick="backBtn()" data-i18n="home">HOME-I18N</button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.reload()" data-i18n="home">HOME-I18N</button>
             <button type="button" class="btn btn-secondary btn-lg" onclick="window.location.href='https://github.com/HongAXE/oshit'" data-i18n="repo">REPO-I18N</button>
         </div>
     </div>
@@ -303,6 +303,7 @@
                                 <li><a class="dropdown-item" onclick="changeMode(MODE_NORMAL)" data-i18n="normal">NORMAL-I18N</a></li>
                                 <li><a class="dropdown-item" onclick="changeMode(MODE_ENDLESS)" data-i18n="endless">ENDLESS-I18N</a></li>
                                 <li><a class="dropdown-item" onclick="changeMode(MODE_PRACTICE)" data-i18n="practice">PRACTICE-I18N</a></li>
+                                <li><a class="dropdown-item" onclick="changeMode(MODE_PIANO)" data-i18n="piano">PIANO-I18N</a></li>
                             </ul>
                         </div>
                         <a class="btn btn-secondary btn-lg" onclick="show_setting()" data-i18n="settings">SETTINGS-I18N</a>
@@ -356,7 +357,17 @@
                                 <input type="checkbox" id="verticalJudge" class="toggle-switch">
                                 <span class="toggle-track"></span>
                             </label>
+                            <!-- ===== 横竖屏切换 ===== -->
+                            <button type="button" class="btn-setting" id="btn-orientation" onclick="toggleOrientation()">🔄 切换到横屏</button>
+                            <!-- ===== 横竖屏切换结束 ===== -->
                         </div>
+                        <!-- ===== 钢琴块 BPM ===== -->
+                        <div class="setting-input-row" style="margin-top:10px;">
+                            <span class="setting-input-label">钢琴块</span>
+                            <input type="number" id="pianoBPM" class="setting-input" min="30" max="600" step="10" placeholder="150">
+                            <span style="color:rgba(255,255,255,0.4);font-size:12px;white-space:nowrap;">BPM</span>
+                        </div>
+                        <!-- ===== 钢琴块 BPM 结束 ===== -->
                     </div>
 
                     <!-- ===== 卡片4：基本设置 ===== -->
