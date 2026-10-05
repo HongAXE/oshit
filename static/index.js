@@ -1,4 +1,4 @@
-const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
+const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3, MODE_PIANO = 4;
 
 (function(w) {
     function getJsonI18N() {
@@ -39,6 +39,58 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             '#welcome,#GameTimeLayer,#GameLayerBG,#GameScoreLayer.SHADE{position:fixed;}@media screen and (orientation:landscape) {#landscape {display: box; display: -webkit-box; display: -moz-box; display: -ms-flexbox;}}') +
         '</style>');
     let map = {'d': 1, 'f': 2, 'j': 3, 'k': 4};
+
+    // ===== 横竖屏切换 =====
+    let isLandscape = localStorage.getItem('landscape') === '1';
+    let gameOffsetX = 0;
+
+    function screenToGame(clientX, clientY) {
+        if (!isLandscape) {
+            return { x: clientX - body.offsetLeft, y: clientY };
+        }
+        var SW = window.innerWidth;
+        return { x: clientY, y: SW - clientX };
+    }
+
+    function applyOrientation() {
+        var SW = window.innerWidth;
+        var SH = window.innerHeight;
+
+        if (isLandscape) {
+            document.body.classList.add('landscape');
+            document.body.style.top = '0';
+            document.body.style.left = SW + 'px';
+            document.body.style.width = SH + 'px';
+            document.body.style.height = SW + 'px';
+            document.body.style.transform = 'rotate(90deg)';
+            document.body.style.transformOrigin = 'left top';
+        } else {
+            document.body.classList.remove('landscape');
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+            document.body.style.transform = '';
+            document.body.style.transformOrigin = '';
+        }
+
+        var btn = document.getElementById('btn-orientation');
+        if (btn) {
+            btn.textContent = isLandscape ? '🔄 切换到竖屏' : '🔄 切换到横屏';
+        }
+
+        setTimeout(function() {
+            if (typeof refreshSize === 'function') refreshSize();
+        }, 350);
+    }
+
+    w.toggleOrientation = function() {
+        isLandscape = !isLandscape;
+        localStorage.setItem('landscape', isLandscape ? '1' : '0');
+        applyOrientation();
+    };
+    // ===== 横竖屏切换结束 =====
+
     // ===== 使用原生 HTML5 Audio（替代 createjs.Sound） =====
     var audioErr = new Audio('./static/music/err.mp3');
     var audioEnd = new Audio('./static/music/end.mp3');
@@ -109,9 +161,9 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     let soundMode = getSoundMode();
 
     w.init = function() {
-        showWelcomeLayer();
         body = document.getElementById('gameBody') || document.body;
-        body.style.height = window.innerHeight + 'px';
+        applyOrientation();   // ★ 新增：应用上次选择的横竖屏
+        showWelcomeLayer();
         transform = typeof (body.style.webkitTransform) != 'undefined' ? 'webkitTransform' : (typeof (body.style.msTransform) !=
         'undefined' ? 'msTransform' : 'transform');
         transitionDuration = transform.replace(/ransform/g, 'ransitionDuration');
@@ -167,7 +219,11 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function modeToString(m) {
-        return m === MODE_NORMAL ? I18N['normal'] : (m === MODE_ENDLESS ? I18N['endless'] : I18N['practice']);
+        if (m === MODE_NORMAL) return I18N['normal'];
+        if (m === MODE_ENDLESS) return I18N['endless'];
+        if (m === MODE_PRACTICE) return I18N['practice'];
+        if (m === MODE_PIANO) return I18N['piano'] || '钢琴块模式';
+        return I18N['normal'];
     }
 
     w.changeMode = function(m) {
@@ -214,7 +270,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             for (let j = 0; j < box.children.length; j++) {
                 let r = box.children[j],
                     rstyle = r.style;
-                rstyle.left = (j % 4) * blockSize + 'px';
+                rstyle.left = gameOffsetX + (j % 4) * blockSize + 'px';
                 rstyle.bottom = Math.floor(j / 4) * blockSize + 'px';
                 rstyle.width = blockSize + 'px';
                 rstyle.height = blockSize + 'px';
@@ -236,11 +292,32 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function countBlockSize() {
-        blockSize = body.offsetWidth / 4;
-        body.style.height = window.innerHeight + 'px';
-        GameLayerBG.style.height = window.innerHeight + 'px';
-        touchArea[0] = window.innerHeight;
-        touchArea[1] = window.innerHeight - blockSize * 3;
+        if (isLandscape) {
+            var worldW = window.innerHeight;   // 横屏时的宽 = 竖屏的高
+            var worldH = window.innerWidth;    // 横屏时的高 = 竖屏的宽
+
+            // 确保 body 尺寸正确
+            body.style.width = worldW + 'px';
+            body.style.height = worldH + 'px';
+
+            // 按高度算 blockSize，保证 4 行可见
+            blockSize = Math.floor(worldH / 4);
+
+            // 4 列方块总宽度，水平居中
+            var gameW = blockSize * 4;
+            gameOffsetX = Math.floor((worldW - gameW) / 2);
+
+            touchArea[0] = worldH;
+            touchArea[1] = worldH - blockSize * 3;
+            GameLayerBG.style.height = worldH + 'px';
+        } else {
+            gameOffsetX = 0;
+            blockSize = body.offsetWidth / 4;
+            body.style.height = window.innerHeight + 'px';
+            GameLayerBG.style.height = window.innerHeight + 'px';
+            touchArea[0] = window.innerHeight;
+            touchArea[1] = window.innerHeight - blockSize * 3;
+        }
     }
 
     let _gameBBList = [],
@@ -251,6 +328,74 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         _gameTime, _gameTimeNum, _gameScore, _date1, deviationTime;
 
     let _gameStartTime, _gameStartDatetime;
+
+    // ===== 钢琴块模式 =====
+    let _pianoRAF = null;           // requestAnimationFrame id
+    let _pianoLastTime = 0;         // 上一帧的时间戳
+    let _pianoProgress = 0;         // 距离下一整格的像素进度
+    let _pianoTick = 0;             // 已下落的格数
+    let _lastHitTick = 0;           // 上次命中的格数
+    const MAX_MISS_TICKS = 10;      // 连续多少格不点就结束
+
+    // BPM 从 localStorage 读取，30~600，默认 150
+    let pianoBPM = parseInt(localStorage.getItem('pianoBPM')) || 150;
+    if (isNaN(pianoBPM) || pianoBPM < 30) pianoBPM = 30;
+    if (pianoBPM > 600) pianoBPM = 600;
+
+    // 每帧：连续推进 + 平滑偏移
+    function pianoFrame(now) {
+        if (_gameOver || !_gameStart) return;
+
+        if (!_pianoLastTime) _pianoLastTime = now;
+        const delta = now - _pianoLastTime;
+        _pianoLastTime = now;
+
+        // 速度：每毫秒下落的像素数 = blockSize × BPM / 60000
+        const speed = blockSize * pianoBPM / 60000;
+        _pianoProgress += speed * delta;
+
+        // 累进整格：每达到一格高度就处理一次生成 / miss 判定
+        while (_pianoProgress >= blockSize) {
+            _pianoProgress -= blockSize;
+            gameLayerMoveNextRow();
+            _pianoTick++;
+
+            if (_pianoTick - _lastHitTick > MAX_MISS_TICKS) {
+                if (soundMode === 'on') {
+                    audioErr.currentTime = 0;
+                    audioErr.play().catch(function(e) {});
+                }
+                GameLayerBG.className += ' flash';
+                gameOver();
+                return;
+            }
+        }
+
+        // 把不足一格的进度叠加到两层的位置上，实现平滑
+        for (let i = 0; i < GameLayer.length; i++) {
+            let g = GameLayer[i];
+            g.style[transform] = 'translate3D(0,' + (g.y + _pianoProgress) + 'px,0)';
+        }
+
+        _pianoRAF = requestAnimationFrame(pianoFrame);
+    }
+
+    function startPianoMode() {
+        stopPianoMode();
+        _pianoTick = 0;
+        _lastHitTick = 0;
+        _pianoProgress = 0;
+        _pianoLastTime = 0;
+        _pianoRAF = requestAnimationFrame(pianoFrame);
+    }
+
+    function stopPianoMode() {
+        if (_pianoRAF) {
+            cancelAnimationFrame(_pianoRAF);
+            _pianoRAF = null;
+        }
+    }
+    // ===== 钢琴块模式结束 =====
 
     let _fsj = false;   // 垂直判定开关
 
@@ -271,6 +416,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameRestart() {
+        stopPianoMode();   // ★ 新增
         // ===== 新增：恢复点击 =====
         var layer = document.getElementById('GameLayerBG');
         if (layer) layer.style.pointerEvents = 'auto';
@@ -304,7 +450,14 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         _date1 = new Date();
         _gameStartDatetime = _date1.getTime();
         _gameStart = true;
-        _gameTime = setInterval(timer, 1000);
+
+        if (mode === MODE_PIANO) {
+            // ★ 钢琴块模式：没有时间限制，只启动自动下落
+            startPianoMode();
+        } else {
+            // 其他模式：启动倒计时
+            _gameTime = setInterval(timer, 1000);
+        }
     }
 
     function getCPS() {
@@ -323,7 +476,6 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             gameOver();
             GameLayerBG.className += ' flash';
             if (soundMode === 'on') {
-                // 使用原生 HTML5 Audio 播放结束音效
                 audioEnd.currentTime = 0;
                 audioEnd.play().catch(function(e) {});
             }
@@ -340,6 +492,9 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             let cps = getCPS();
             let text = (cps === 0 ? I18N['calculating'] : cps.toFixed(2));
             GameTimeLayer.innerHTML = `CPS:${text}`;
+        } else if (mode === MODE_PIANO) {
+            // 钢琴块模式：无时间限制，只显示分数
+            GameTimeLayer.innerHTML = `SCORE:${_gameScore}`;
         } else {
             GameTimeLayer.innerHTML = `SCORE:${_gameScore}`;
         }
@@ -350,6 +505,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
     }
 
     function gameOver() {
+        stopPianoMode();   // ★ 新增
         // ===== 新增：立即禁用点击 =====
         var layer = document.getElementById('GameLayerBG');
         if (layer) layer.style.pointerEvents = 'none';
@@ -480,7 +636,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         let i = randomPos() + (loop ? 0 : 4);
         for (let j = 0; j < box.children.length; j++) {
             let r = box.children[j], rstyle = r.style;
-            rstyle.left = (j % 4) * blockSize + 'px';
+            rstyle.left = gameOffsetX + (j % 4) * blockSize + 'px';
             rstyle.bottom = Math.floor(j / 4) * blockSize + 'px';
             rstyle.width = blockSize + 'px';
             rstyle.height = blockSize + 'px';
@@ -531,9 +687,19 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             return false;
         }
         var tar = e.target;
-        var y = e.clientY || e.targetTouches[0].clientY,
-            x = (e.clientX || e.targetTouches[0].clientX) - body.offsetLeft,
-            p = _gameBBList[_gameBBListIndex];
+        var x, y;
+        if (e.__internal) {
+            x = e.clientX;
+            y = e.clientY;
+        } else {
+            var rawX = e.clientX || e.targetTouches[0].clientX;
+            var rawY = e.clientY || e.targetTouches[0].clientY;
+            var coords = screenToGame(rawX, rawY);
+            x = coords.x;
+            y = coords.y;
+        }
+        var columnX = x - gameOffsetX;
+        var p = _gameBBList[_gameBBListIndex];
 
         // ===== 垂直判定：如果开启，忽略 y 坐标限制 =====
         if (!_fsj) {
@@ -553,7 +719,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             }
         } else {
             // 原有判定逻辑
-            if ((p.id === tar.id && tar.notEmpty) || (p.cell === 0 && x < blockSize) || (p.cell === 1 && x > blockSize && x < 2 * blockSize) || (p.cell === 2 && x > 2 * blockSize && x < 3 * blockSize) || (p.cell === 3 && x > 3 * blockSize)) {
+            if ((p.id === tar.id && tar.notEmpty) || (p.cell === 0 && columnX < blockSize) || (p.cell === 1 && columnX > blockSize && columnX < 2 * blockSize) || (p.cell === 2 && columnX > 2 * blockSize && columnX < 3 * blockSize) || (p.cell === 3 && columnX > 3 * blockSize)) {
                 hit = true;
             }
         }
@@ -570,8 +736,16 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             tar.className = tar.className.replace(_ttreg, ' tt$1');
             _gameBBListIndex++;
             _gameScore++;
+
+            if (mode === MODE_PIANO) {
+                // ★ 钢琴块模式：只重置 miss 计数，不手动移动谱面
+                _lastHitTick = _pianoTick;
+            } else {
+                // 其他模式：点击后谱面下移一格
+                gameLayerMoveNextRow();
+            }
+
             updatePanel();
-            gameLayerMoveNextRow();
         } else if (_gameStart && !tar.notEmpty) {
             if (soundMode === 'on') {
                 audioErr.currentTime = 0;
@@ -711,6 +885,17 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             }
         }
 
+        // ★ 钢琴块模式：按分数评级
+        if (mode === MODE_PIANO) {
+            var s = _gameScore;
+            if (s <= 30) return names[0];
+            if (s <= 70) return names[1];
+            if (s <= 150) return names[2];
+            if (s <= 300) return names[3];
+            return names[4];
+        }
+
+        // 其他模式：按 CPS 评级
         if (cps <= 5) return names[0];
         if (cps <= 8) return names[1];
         if (cps <= 10) return names[2];
@@ -845,7 +1030,7 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             $('#gameTime').val('20');
             _gameSettingNum = 20;
             localStorage.removeItem('gameTime');
-            cookie('gameTime', '', -1);
+            cookie('gameTime', null);
         }
         if (_gameSettingNum) {
             gameRestart();
@@ -856,6 +1041,19 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             filterPattern();
             gameRestart();
         }
+
+        // ===== 读取钢琴块 BPM =====
+        var bpmFromLS = localStorage.getItem('pianoBPM');
+        if (bpmFromLS) {
+            var bpmVal = parseInt(bpmFromLS);
+            if (!isNaN(bpmVal) && bpmVal >= 30 && bpmVal <= 600) {
+                pianoBPM = bpmVal;
+                $('#pianoBPM').val(pianoBPM);
+            }
+        } else {
+            $('#pianoBPM').val(pianoBPM);
+        }
+        // ===== 读取钢琴块 BPM 结束 =====
 
         // 读取垂直判定
         var fsjFromLS = localStorage.getItem('fsj');
@@ -935,6 +1133,12 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             }
         }
         // ===== 评级设置同步结束 =====
+
+        // 同步钢琴块 BPM
+        var bpmEl = document.getElementById('pianoBPM');
+        if (bpmEl) {
+            bpmEl.value = pianoBPM;
+        }
     }
 
     w.save_cookie = function() {
@@ -977,6 +1181,17 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
             localStorage.setItem('levelName' + i, val);
         }
         // ===== 评级设置保存结束 =====
+
+        // ===== 保存钢琴块 BPM =====
+        var bpmInput = document.getElementById('pianoBPM');
+        if (bpmInput) {
+            var bpmVal = parseInt(bpmInput.value);
+            if (isNaN(bpmVal) || bpmVal < 30) bpmVal = 30;
+            if (bpmVal > 600) bpmVal = 600;
+            pianoBPM = bpmVal;
+            localStorage.setItem('pianoBPM', bpmVal.toString());
+        }
+        // ===== 保存钢琴块 BPM 结束 =====
 
         initSetting();
     };
@@ -1030,9 +1245,10 @@ const MODE_NORMAL = 1, MODE_ENDLESS = 2, MODE_PRACTICE = 3;
         let id = p.id.substring(0, 11) + num;
 
         let fakeEvent = {
-            clientX: ((index - 1) * blockSize + index * blockSize) / 2 + body.offsetLeft,
+            clientX: gameOffsetX + ((index - 1) * blockSize + index * blockSize) / 2,
             clientY: (touchArea[0] + touchArea[1]) / 2,
             target: document.getElementById(id),
+            __internal: true
         };
 
         gameTapEvent(fakeEvent);
